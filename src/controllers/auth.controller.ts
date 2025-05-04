@@ -3,6 +3,8 @@ import {
   createAccount,
   loginUser,
   refreshUserAccessToken,
+  resetPassword,
+  sendPasswordResetEmail,
   verifyEmail,
 } from '../service/auth.service';
 import { CREATED, OK, UNAUTHORIZED } from '../constants/http';
@@ -14,8 +16,10 @@ import {
 } from '../utils/cookies';
 import { z } from 'zod';
 import {
+  emailSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   verificationCodeSchema,
 } from './auth.schemas';
 import { verifyToken } from '../utils/jwt';
@@ -66,9 +70,8 @@ export const refreshHandler = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken as string | undefined;
   appAssert(refreshToken, UNAUTHORIZED, 'Missing Refresh Token');
 
-  const { accessToken, newRefreshToken } = await refreshUserAccessToken(
-    refreshToken
-  );
+  const { accessToken, newRefreshToken } =
+    await refreshUserAccessToken(refreshToken);
 
   if (newRefreshToken) {
     res.cookie('refreshToken', newRefreshToken, getRefreshTokenCookieOptions());
@@ -89,5 +92,26 @@ export const verifyEmailHandler = async (req: Request, res: Response) => {
 
   res.status(OK).json({
     message: 'Email verified successfully',
+  });
+};
+
+export const sendPasswordResetHandler = async (req: Request, res: Response) => {
+  const email = emailSchema.parse(req.body.email);
+
+  // call service
+  await sendPasswordResetEmail(email);
+
+  res.status(OK).json({
+    message: 'Password reset email sent',
+  });
+};
+
+export const resetPasswordHandler = async (req: Request, res: Response) => {
+  const request = resetPasswordSchema.parse(req.body);
+
+  await resetPassword(request);
+
+  clearAuthCookies(res).status(OK).json({
+    message: 'Password reset successful',
   });
 };
