@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { BAD_REQUEST, NOT_FOUND } from '../constants/http';
+import { BAD_REQUEST, FORBIDDEN, NOT_FOUND } from '../constants/http';
 import PostModel from '../models/post.model';
 import appAssert from '../utils/appAssert';
 
@@ -57,4 +57,58 @@ export const createPostService = async ({
   const post = await PostModel.create({ title, content, author: userId });
 
   return post;
+};
+
+type UpdatePostParams = {
+  id: string;
+  title?: string;
+  content?: string;
+  userId: string;
+};
+
+export const updatePostService = async ({
+  id,
+  title,
+  content,
+  userId,
+}: UpdatePostParams) => {
+  // 1. id 유효성 검사
+  appAssert(
+    mongoose.isValidObjectId(id),
+    BAD_REQUEST,
+    '게시글 아이디를 전달하지 않거나, 유효하지 않은 포스트 아이디를 전달하였습니다.'
+  );
+
+  // 2. userId 유효성 검사
+  appAssert(
+    mongoose.isValidObjectId(userId),
+    BAD_REQUEST,
+    '유효하지 않은 사용자 아이디를 전달하였습니다.'
+  );
+
+  // 3. 수정할 필드가 최소 1개 이상 있는지 검사
+  appAssert(
+    title !== undefined || content !== undefined,
+    BAD_REQUEST,
+    '수정할 내용을 1개 이상 전달해 주세요.'
+  );
+
+  // 4. 해당 게시글 존재 여부 및 권한 확인
+  const post = await PostModel.findById(id);
+  appAssert(post, NOT_FOUND, '존재하지 않는 게시글입니다.');
+
+  // 5. 권한 확인 (작성자 본인인지)
+  appAssert(
+    post.author.toString() === userId,
+    FORBIDDEN,
+    '해당 게시글을 수정할 권한이 없습니다.'
+  );
+
+  // 6. 수정 진행
+  if (title !== undefined) post.title = title;
+  if (content !== undefined) post.content = content;
+
+  const updatedPost = await post.save();
+
+  return updatedPost.populate('author', 'email');
 };

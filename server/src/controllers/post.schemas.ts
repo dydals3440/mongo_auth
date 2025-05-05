@@ -26,3 +26,8 @@ export const createPostSchema = z.object({
   title: titleSchema,
   content: contentSchema,
 });
+
+export const updatePostSchema = z.object({
+  title: titleSchema.optional(),
+  content: contentSchema.optional(),
+});

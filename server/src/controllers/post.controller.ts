@@ -4,8 +4,9 @@ import {
   createPostService,
   getPostByIdService,
   getPostService,
+  updatePostService,
 } from '../service/post.service';
-import { createPostSchema } from './post.schemas';
+import { createPostSchema, updatePostSchema } from './post.schemas';
 
 export const getPostHandler = async (req: Request, res: Response) => {
   const { limit = 10, cursor } = req.query;
@@ -34,6 +35,21 @@ export const createPostHandler = async (req: Request, res: Response) => {
   const userId = req.userId.toString();
 
   const post = await createPostService({
+    title,
+    content,
+    userId,
+  });
+
+  res.status(OK).json(post);
+};
+
+export const updatePostHandler = async (req: Request, res: Response) => {
+  const { title, content } = updatePostSchema.parse(req.body);
+  const id = req.params.id.toString();
+  const userId = req.userId.toString();
+
+  const post = await updatePostService({
+    id,
     title,
     content,
     userId,
