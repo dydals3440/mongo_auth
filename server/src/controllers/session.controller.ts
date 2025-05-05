@@ -41,6 +41,7 @@ export const deleteSessionHandler = async (req: Request, res: Response) => {
     userId: req.userId,
   });
   appAssert(deleted, NOT_FOUND, 'Session not found');
+
   res.status(OK).json({
     message: 'Session deleted successfully',
   });
