@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createPostHandler,
+  deletePostHandler,
   getPostByIdHandler,
   getPostHandler,
   updatePostHandler,
@@ -13,5 +14,6 @@ postRoutes.get('/', getPostHandler);
 postRoutes.get('/:id', getPostByIdHandler);
 postRoutes.post('/', authenticate, createPostHandler);
 postRoutes.patch('/:id', authenticate, updatePostHandler);
+postRoutes.delete('/:id', authenticate, deletePostHandler);
 
 export default postRoutes;

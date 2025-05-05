@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { OK } from '../constants/http';
 import {
   createPostService,
+  deletePostService,
   getPostByIdService,
   getPostService,
   updatePostService,
@@ -56,4 +57,13 @@ export const updatePostHandler = async (req: Request, res: Response) => {
   });
 
   res.status(OK).json(post);
+};
+
+export const deletePostHandler = async (req: Request, res: Response) => {
+  const id = req.params.id.toString();
+  const userId = req.userId.toString();
+
+  await deletePostService({ id, userId });
+
+  res.status(OK).json({ message: '게시글 삭제 완료' });
 };

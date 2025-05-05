@@ -112,3 +112,21 @@ export const updatePostService = async ({
 
   return updatedPost.populate('author', 'email');
 };
+
+type DeletePostParams = {
+  id: string;
+  userId: string;
+};
+
+export const deletePostService = async ({ id, userId }: DeletePostParams) => {
+  const post = await PostModel.findById(id);
+  appAssert(post, NOT_FOUND, '존재하지 않는 게시글입니다.');
+
+  appAssert(
+    post.author.toString() === userId,
+    FORBIDDEN,
+    '해당 게시글을 삭제할 권한이 없습니다.'
+  );
+
+  await post.deleteOne({ user: userId });
+};

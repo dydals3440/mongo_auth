@@ -19,8 +19,8 @@ const postSchema = new mongoose.Schema<PostDocument>(
     },
   },
   {
-    timestamps: true, // ← 이 옵션 하나로 createdAt, updatedAt 자동 관리!
-    optimisticConcurrency: true, // 이걸 추가!
+    timestamps: true,
+    optimisticConcurrency: true,
   }
 );
 
