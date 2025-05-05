@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { OK } from '../constants/http';
-import { createPostService, getPostService } from '../service/post.service';
+import {
+  createPostService,
+  getPostByIdService,
+  getPostService,
+} from '../service/post.service';
 import { createPostSchema } from './post.schemas';
 
 export const getPostHandler = async (req: Request, res: Response) => {
@@ -16,6 +20,13 @@ export const getPostHandler = async (req: Request, res: Response) => {
     hasNext,
     nextCursor,
   });
+};
+
+export const getPostByIdHandler = async (req: Request, res: Response) => {
+  const id = req.params.id.toString();
+  const post = await getPostByIdService({ id });
+
+  res.status(OK).json(post);
 };
 
 export const createPostHandler = async (req: Request, res: Response) => {

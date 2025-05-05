@@ -1,4 +1,7 @@
+import mongoose from 'mongoose';
+import { BAD_REQUEST, NOT_FOUND } from '../constants/http';
 import PostModel from '../models/post.model';
+import appAssert from '../utils/appAssert';
 
 type GetPostsParams = {
   limit: number;
@@ -22,6 +25,23 @@ export const getPostService = async ({ limit, cursor }: GetPostsParams) => {
     hasNext,
     nextCursor,
   };
+};
+
+type GetPostByIdParams = {
+  id: string;
+};
+
+export const getPostByIdService = async ({ id }: GetPostByIdParams) => {
+  appAssert(
+    mongoose.isValidObjectId(id),
+    BAD_REQUEST,
+    '게시글 아이디를 전달하지 않거나, 유효하지 않은 포스트 아이디를 전달하였습니다.'
+  );
+
+  const post = await PostModel.findById(id).populate('author', 'email');
+  appAssert(post, NOT_FOUND, '존재하지 않는 게시글입니다.');
+
+  return post;
 };
 
 type CreatePostParams = {
