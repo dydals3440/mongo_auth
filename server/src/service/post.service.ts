@@ -9,6 +9,7 @@ export const getPostService = async ({ limit, cursor }: GetPostsParams) => {
   const query = cursor ? { _id: { $lt: cursor } } : {};
 
   const posts = await PostModel.find(query)
+    .populate('author', 'email')
     .sort({ _id: -1 })
     .limit(limit + 1);
 
@@ -34,5 +35,6 @@ export const createPostService = async ({
   userId,
 }: CreatePostParams & { userId: string }) => {
   const post = await PostModel.create({ title, content, author: userId });
+
   return post;
 };
